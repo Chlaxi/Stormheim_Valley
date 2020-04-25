@@ -11,12 +11,16 @@ public class PlayerController : MonoBehaviour
     private float _moveDelay;
     private bool followingPointer = false;
 
+    [SerializeField]
+    private float interactionRadius;
+
     public float speed = 2f;
 
     Vector2 dir;
-   // public LayerMask layerMasks;
+    // public LayerMask layerMasks;
 
-
+    [SerializeField]
+    LayerMask interactableLayer;
     Rigidbody2D rg;
     Animator animator;
 
@@ -47,12 +51,30 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 100, interactableLayer);
+            if (hit.collider != null)
+            {
+                Interactable interactable = hit.collider.GetComponent<Interactable>();
+                //TODO Check distance
+                if (interactable != null && Vector2.Distance(interactable.transform.position,transform.position) <= interactionRadius)
+                {
+                    //Look at interactable
+                    interactable.Interact();
+                }
+            }
+        }
+
         if(pointerMovement && Input.GetMouseButtonUp(0))
         {
             followingPointer = false;
             _moveDelay = moveDelay;
         }
     }
+
+    
 
     private void PrepMouseMove()
     {
@@ -103,6 +125,11 @@ public class PlayerController : MonoBehaviour
 
         //TODO: Keeps animation face direction
 
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 
 }
