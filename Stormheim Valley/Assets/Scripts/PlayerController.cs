@@ -5,6 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D),typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
+    private Interactable currentInteractable;
+
+
+
+    [SerializeField]
+    protected bool isMoving;
     public bool pointerMovement;
     public float moveDelay;
 
@@ -15,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private float interactionRadius;
 
     public float speed = 2f;
+
 
     Vector2 dir;
     // public LayerMask layerMasks;
@@ -53,6 +60,8 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            //Add pathfinding. Should be overwritten when holding
+
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 100, interactableLayer);
             if (hit.collider != null)
@@ -74,12 +83,16 @@ public class PlayerController : MonoBehaviour
 
     private void Interact(Interactable interactable)
     {
+        currentInteractable = interactable;
         Vector2 direction = (interactable.transform.position - transform.position).normalized;
         animator.SetFloat("Horizontal", direction.x);
         animator.SetFloat("Vertical", direction.y);
-        animator.SetTrigger("Interact");
-        interactable.Interact();
+        interactable.InitiateInteraction(this);
+        animator.SetBool("Interacting",true);
+        
+       
     }
+    
 
     private void PrepMouseMove()
     {
@@ -125,13 +138,33 @@ public class PlayerController : MonoBehaviour
         Vector2 velocity = dir * speed;
         rg.MovePosition(rg.position + velocity * Time.deltaTime);
         
-        if(velocity.magnitude > 0.2f){
+        if(velocity.magnitude >= 0.1f){
             animator.SetFloat("Horizontal", dir.x);
             animator.SetFloat("Vertical", dir.y);
-         
+            isMoving = true;
+
+            StopInteraction();        
+        }
+        else
+        {
+            isMoving = false;
+
         }
         animator.SetFloat("Speed", velocity.magnitude);
 
+    }
+
+    public void StopInteraction()
+    {
+        animator.SetBool("Interacting", false);
+        if (currentInteractable != null)
+        {
+            Debug.Log("----Stop interacting with " + currentInteractable.name);
+            if(currentInteractable.isInteracting)
+                currentInteractable.StopInteraction();
+            
+            currentInteractable = null;
+        }
     }
 
     private void OnDrawGizmos()

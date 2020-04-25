@@ -20,4 +20,5 @@ public class PickUpInteractable : Interactable
         //If  pickUp successful: Destroy
         Destroy(gameObject);
     }
+
 }
