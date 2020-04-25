@@ -58,16 +58,18 @@ public class PlayerController : MonoBehaviour
             if (hit.collider != null)
             {
                 Interactable interactable = hit.collider.GetComponent<Interactable>();
-                //TODO Check distance
                 if (interactable != null && Vector2.Distance(interactable.transform.position,transform.position) <= interactionRadius)
                 {
                     //Look at interactable
+                    Vector2 direction = (interactable.transform.position - transform.position).normalized;
+                    animator.SetFloat("Horizontal", direction.x);
+                    animator.SetFloat("Vertical", direction.y);
                     interactable.Interact();
                 }
             }
         }
 
-        if(pointerMovement && Input.GetMouseButtonUp(0))
+        if (pointerMovement && Input.GetMouseButtonUp(0))
         {
             followingPointer = false;
             _moveDelay = moveDelay;
@@ -119,11 +121,13 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 velocity = dir * speed;
         rg.MovePosition(rg.position + velocity * Time.deltaTime);
-        animator.SetFloat("Horizontal", dir.x);
-        animator.SetFloat("Vertical", dir.y);
+        
+        if(velocity.magnitude > 0.2f){
+            animator.SetFloat("Horizontal", dir.x);
+            animator.SetFloat("Vertical", dir.y);
+         
+        }
         animator.SetFloat("Speed", velocity.magnitude);
-
-        //TODO: Keeps animation face direction
 
     }
 
