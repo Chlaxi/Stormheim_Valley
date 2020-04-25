@@ -9,7 +9,7 @@ public class Interactable : MonoBehaviour
     [SerializeField]
     private float _interactionTime = 0;
     [SerializeField]
-    private PlayerController player;
+    protected PlayerController player;
     public bool resetOnStop = false;
 
     private void Start()

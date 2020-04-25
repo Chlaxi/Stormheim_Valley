@@ -8,17 +8,20 @@ public class PickUpInteractable : Interactable
 
     public override void Interact()
     {
-        base.Interact();
         PickUp();
+        base.Interact();
+        
     }
 
     public void PickUp()
     {
         Debug.Log("picked up " + item.name);
-        //Add item to inventory, if space is availble
-
-        //If  pickUp successful: Destroy
-        Destroy(gameObject);
+        if (player.GetComponent<Inventory>().AddItem(item))
+        {
+            Debug.Log("Item picked up!");
+            Destroy(gameObject);
+        }
+        Debug.Log("Interaction failed");
     }
 
 }
