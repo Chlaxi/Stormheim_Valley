@@ -6,6 +6,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public bool pointerMovement;
+    public float moveDelay;
+
+    private float _moveDelay;
+    private bool followingPointer = false;
+
     public float speed = 2f;
 
     Vector2 dir;
@@ -23,24 +28,45 @@ public class PlayerController : MonoBehaviour
     {
         rg = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        _moveDelay = moveDelay;
     }
 
     void Update()
     {
+        dir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
         if (pointerMovement && Input.GetMouseButton(0))
         {
-            FaceCursor();
+            if (followingPointer)
+            {
+                FollowCursor();
+            }
+            else
+            {
+                PrepMouseMove();
+            }
         }
-        else
-        {
 
-            dir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        if(pointerMovement && Input.GetMouseButtonUp(0))
+        {
+            followingPointer = false;
+            _moveDelay = moveDelay;
         }
     }
 
+    private void PrepMouseMove()
+    {
+        if (_moveDelay > 0f)
+        {
+            _moveDelay -= Time.deltaTime;
+        }
+        else
+        {
+            followingPointer = true;
+        }
+    }
 
-    private void FaceCursor()
+    private void FollowCursor()
     {
         mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -61,12 +87,20 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        Move();
+    }
+
+    /// <summary>
+    /// Moves the player based on the direction granted from either the pointer or controls
+    /// </summary>
+    void Move()
+    {
         Vector2 velocity = dir * speed;
         rg.MovePosition(rg.position + velocity * Time.deltaTime);
         animator.SetFloat("Horizontal", dir.x);
         animator.SetFloat("Vertical", dir.y);
         animator.SetFloat("Speed", velocity.magnitude);
-        
+
         //TODO: Keeps animation face direction
 
     }
