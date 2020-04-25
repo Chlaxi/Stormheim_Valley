@@ -60,11 +60,7 @@ public class PlayerController : MonoBehaviour
                 Interactable interactable = hit.collider.GetComponent<Interactable>();
                 if (interactable != null && Vector2.Distance(interactable.transform.position,transform.position) <= interactionRadius)
                 {
-                    //Look at interactable
-                    Vector2 direction = (interactable.transform.position - transform.position).normalized;
-                    animator.SetFloat("Horizontal", direction.x);
-                    animator.SetFloat("Vertical", direction.y);
-                    interactable.Interact();
+                    Interact(interactable);
                 }
             }
         }
@@ -76,7 +72,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
+    private void Interact(Interactable interactable)
+    {
+        Vector2 direction = (interactable.transform.position - transform.position).normalized;
+        animator.SetFloat("Horizontal", direction.x);
+        animator.SetFloat("Vertical", direction.y);
+        animator.SetTrigger("Interact");
+        interactable.Interact();
+    }
 
     private void PrepMouseMove()
     {
