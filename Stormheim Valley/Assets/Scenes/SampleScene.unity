@@ -171,6 +171,8 @@ MonoBehaviour:
   isInteracting: 0
   interactionTime: 1
   _interactionTime: 0
+  player: {fileID: 0}
+  resetOnStop: 0
   item: {fileID: 11400000, guid: 7d2c3488f33f52f46a6acaf02579542d, type: 2}
 --- !u!212 &226236447
 SpriteRenderer:
@@ -369,6 +371,8 @@ MonoBehaviour:
   isInteracting: 0
   interactionTime: 2
   _interactionTime: 2
+  player: {fileID: 0}
+  resetOnStop: 1
   item: {fileID: 5799190893936062181, guid: 05ef9949477e0be449b9b33cdd30c951, type: 3}
 --- !u!212 &613206845
 SpriteRenderer:
@@ -529,6 +533,8 @@ MonoBehaviour:
   isInteracting: 0
   interactionTime: 5
   _interactionTime: 0
+  player: {fileID: 0}
+  resetOnStop: 0
   item: {fileID: 11400000, guid: 7d2c3488f33f52f46a6acaf02579542d, type: 2}
 --- !u!212 &1470783152
 SpriteRenderer:
@@ -627,6 +633,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca38c36bcb7b28049ace526a1033d2ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMoving: 0
   pointerMovement: 1
   moveDelay: 0.1
   interactionRadius: 1.05
@@ -2722,10 +2729,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5799190893936062177, guid: 05ef9949477e0be449b9b33cdd30c951,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 5799190893936062181, guid: 05ef9949477e0be449b9b33cdd30c951,
         type: 3}
       propertyPath: m_Name
       value: InteractableTest
+      objectReference: {fileID: 0}
+    - target: {fileID: 5799190893936062182, guid: 05ef9949477e0be449b9b33cdd30c951,
+        type: 3}
+      propertyPath: interactionTime
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5799190893936062183, guid: 05ef9949477e0be449b9b33cdd30c951,
         type: 3}

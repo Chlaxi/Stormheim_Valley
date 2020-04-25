@@ -66,7 +66,7 @@ public class PlayerController : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 100, interactableLayer);
             if (hit.collider != null)
             {
-                Interactable interactable = hit.collider.GetComponent<Interactable>();
+                Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
                 if (interactable != null && Vector2.Distance(interactable.transform.position,transform.position) <= interactionRadius)
                 {
                     Interact(interactable);
