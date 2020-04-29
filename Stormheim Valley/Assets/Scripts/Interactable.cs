@@ -20,7 +20,7 @@ public class Interactable : MonoBehaviour
             location = transform;
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (isInteracting)
         {
@@ -34,11 +34,12 @@ public class Interactable : MonoBehaviour
     }
 
 
-    public virtual void InitiateInteraction(PlayerController player)
+    public virtual bool InitiateInteraction(PlayerController player)
     {
         this.player = player;
         isInteracting = true;
         Debug.Log("Initiating interaction with: " + name);
+        return true;
     }
 
     public virtual void Interact()

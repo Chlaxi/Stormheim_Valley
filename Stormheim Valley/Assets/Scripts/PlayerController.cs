@@ -87,8 +87,10 @@ public class PlayerController : MonoBehaviour
         Vector2 direction = (interactable.transform.position - transform.position).normalized;
         animator.SetFloat("Horizontal", direction.x);
         animator.SetFloat("Vertical", direction.y);
-        interactable.InitiateInteraction(this);
-        animator.SetBool("Interacting",true);
+        if (interactable.InitiateInteraction(this))
+        {
+            animator.SetBool("Interacting", true);
+        }
         
        
     }
