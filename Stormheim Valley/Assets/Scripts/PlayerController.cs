@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
             if (hit.collider != null)
             {
                 Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
-                if (interactable != null && Vector2.Distance(interactable.transform.position,transform.position) <= interactionRadius)
+                if (interactable != null && Vector2.Distance(interactable.location.position,transform.position) <= interactionRadius)
                 {
                     Interact(interactable);
                 }
