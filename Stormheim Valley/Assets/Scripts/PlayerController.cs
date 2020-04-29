@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 [RequireComponent(typeof(Rigidbody2D),typeof(Animator))]
 public class PlayerController : MonoBehaviour
@@ -16,12 +19,15 @@ public class PlayerController : MonoBehaviour
 
     private float _moveDelay;
     private bool followingPointer = false;
+    private bool UIHit = false;
 
     [SerializeField]
     private float interactionRadius;
 
     public float speed = 2f;
 
+    private GraphicRaycaster graphicsRaycaster;
+    private EventSystem eventSystem;
 
     Vector2 dir;
     // public LayerMask layerMasks;
@@ -37,6 +43,8 @@ public class PlayerController : MonoBehaviour
     
     private void Start()
     {
+        graphicsRaycaster = GameObject.Find("MainCanvas").GetComponent<GraphicRaycaster>();
+
         rg = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         _moveDelay = moveDelay;
@@ -48,6 +56,9 @@ public class PlayerController : MonoBehaviour
 
         if (pointerMovement && Input.GetMouseButton(0))
         {
+            if (UIHit)
+                return;
+
             if (followingPointer)
             {
                 FollowCursor();
@@ -77,6 +88,7 @@ public class PlayerController : MonoBehaviour
         if (pointerMovement && Input.GetMouseButtonUp(0))
         {
             followingPointer = false;
+            UIHit = false;
             _moveDelay = moveDelay;
         }
     }
@@ -98,6 +110,26 @@ public class PlayerController : MonoBehaviour
 
     private void PrepMouseMove()
     {
+        //Set up the new Pointer Event
+        PointerEventData m_PointerEventData = new PointerEventData(eventSystem);
+        //Set the Pointer Event Position to that of the mouse position
+        m_PointerEventData.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        bool hit = false;
+        graphicsRaycaster.Raycast(m_PointerEventData, results);
+        foreach (RaycastResult result in results)
+        {
+            Debug.Log("Hit " + result.gameObject.name + "SortingLayer="+ result.gameObject.layer);
+
+            if (result.gameObject.layer == 5)
+            {
+                Debug.Log("UI hit. not prepping movement");
+                followingPointer = false;
+                UIHit = true;
+                return;
+            }
+        }
+
         if (_moveDelay > 0f)
         {
             _moveDelay -= Time.deltaTime;
