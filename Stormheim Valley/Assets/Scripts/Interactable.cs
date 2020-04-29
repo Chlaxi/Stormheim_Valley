@@ -6,6 +6,7 @@ public class Interactable : MonoBehaviour
 {
     public bool isInteracting = false;
     public float interactionTime=0;
+    public Transform location;
     [SerializeField]
     private float _interactionTime = 0;
     [SerializeField]
@@ -15,6 +16,8 @@ public class Interactable : MonoBehaviour
     private void Start()
     {
         _interactionTime = interactionTime;
+        if (location == null)
+            location = transform;
     }
 
     private void Update()

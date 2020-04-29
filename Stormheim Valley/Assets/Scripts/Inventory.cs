@@ -5,21 +5,36 @@ using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
-    [SerializeField]
-    private int size = 16;
+    
+    public int size = 16;
 
     [SerializeField]
     private Item[] inventory;
 
     public Item testItem;
 
+    public InventoryUI UI;
+    private bool UIState = false;
     private void Start()
     {
         inventory = new Item[size];
+
+        if (UI == null)
+        {
+            throw new System.Exception("No inventory UI specified");
+        }
+        UI.Setup(this);
+        UIState = UI.gameObject.activeSelf;
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown("b"))
+        {
+            UIState = !UIState;
+            UI.gameObject.SetActive(UIState);
+        }
+
         if (Input.GetKeyDown("q"))
         {
             Debug.Log(AddItem(testItem));
@@ -73,6 +88,7 @@ public class Inventory : MonoBehaviour
 
         inventory[availableIndex] = item;
         Debug.Log("Added to " + availableIndex);
+        UI.AddItem(item,availableIndex);
         return true;
     }
 
@@ -98,7 +114,21 @@ public class Inventory : MonoBehaviour
         Debug.Log(inventory[index].name + " at index " + index + " was removed");
         inventory[index].DropItem(transform);
         inventory[index] = null;
+        UI.RemoveItem(index);
         return true;
+    }
+
+    /// <summary>
+    /// Gets the item stored in a certain index
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public Item GetItem(int index)
+    {
+        if(index<0 || index >= inventory.Length)
+            return null;
+
+        return inventory[index];
     }
 
     //Replace Item
@@ -108,6 +138,7 @@ public class Inventory : MonoBehaviour
 
         inventory[formerIndex] = inventory[newIndex];
         inventory[newIndex] = item;
+        UI.ReplaceItem(formerIndex, newIndex);
     }
 
 }
