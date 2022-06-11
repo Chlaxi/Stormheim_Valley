@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private EventSystem eventSystem;
 
     Vector2 dir;
+    Vector2 pointDir;
     // public LayerMask layerMasks;
 
     [SerializeField]
@@ -54,43 +55,76 @@ public class PlayerController : MonoBehaviour
     {
         dir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        if (pointerMovement && Input.GetMouseButton(0))
+        if (pointerMovement)
         {
-            if (UIHit)
-                return;
-
-            if (followingPointer)
-            {
-                FollowCursor();
-            }
-            else
-            {
-                PrepMouseMove();
-            }
+            PointerMove();
+            return;
         }
 
         if (Input.GetMouseButtonDown(0))
         {
-            //Add pathfinding. Should be overwritten when holding
-
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 100, interactableLayer);
-            if (hit.collider != null)
-            {
-                Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
-                if (interactable != null && Vector2.Distance(interactable.location.position,transform.position) <= interactionRadius)
-                {
-                    Interact(interactable);
-                }
-            }
+            Action();
         }
+        
+    }
 
-        if (pointerMovement && Input.GetMouseButtonUp(0))
+    private void PointerMove()
+    {
+        if (Input.GetMouseButtonUp(0))
         {
+            if (!followingPointer)
+            {
+                Action();
+            }
             followingPointer = false;
             UIHit = false;
             _moveDelay = moveDelay;
+
         }
+
+        if (UIHit)
+            return;
+
+        if (Input.GetMouseButton(0))
+        {
+            if (followingPointer)
+            {
+                dir = GetPointerDir();
+                return;
+            }
+
+            PrepPointerMove();
+        }
+    }
+
+    private void SetPointDir(Vector2 direction)
+    {
+        
+        if (direction.magnitude != 0)
+        {
+            animator.SetFloat("Horizontal", direction.x);
+            animator.SetFloat("Vertical", direction.y);
+            pointDir = direction.normalized;
+        }
+    }
+
+    private void Action()
+    {
+        //TODO: Rewrite so it can be used by controller
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, 100, interactableLayer);
+        SetPointDir(GetPointerDir());
+
+        if (hit.collider != null)
+        {
+            Interactable interactable = hit.collider.GetComponentInParent<Interactable>();
+            if (interactable != null && Vector2.Distance(interactable.location.position, transform.position) <= interactionRadius)
+            {
+                Interact(interactable);
+                return;
+            }
+        }
+        UseItem();
     }
 
     private void Interact(Interactable interactable)
@@ -101,21 +135,26 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Vertical", direction.y);
         if (interactable.InitiateInteraction(this))
         {
+            //TODO: Make animation based on interactable object
             animator.SetBool("Interacting", true);
-        }
-        
-       
+        }     
     }
     
+    private void UseItem()
+    {
+        //Get equiped item and call its use function.
+        //TODO: Make animation based on item used
+        Debug.Log("Pew pew!");
+    }
 
-    private void PrepMouseMove()
+    private void PrepPointerMove()
     {
         //Set up the new Pointer Event
         PointerEventData m_PointerEventData = new PointerEventData(eventSystem);
         //Set the Pointer Event Position to that of the mouse position
         m_PointerEventData.position = Input.mousePosition;
         List<RaycastResult> results = new List<RaycastResult>();
-        bool hit = false;
+
         graphicsRaycaster.Raycast(m_PointerEventData, results);
         foreach (RaycastResult result in results)
         {
@@ -140,22 +179,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void FollowCursor()
+    private Vector2 GetPointerDir()
     {
         mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
+        
         //Update distance checking
         if (Vector2.Distance(mousePosition, rg.position)<0.5f)
         {
             Debug.Log("cursor on player");
-            dir = new Vector2(0, 0);
-            return;
+            return new Vector2(0, 0);
+            
         }
-
-        dir = new Vector2(
+        return new Vector2(
             mousePosition.x - transform.position.x,
             mousePosition.y - transform.position.y).normalized;
-
+        
 
     }
 
@@ -171,10 +209,10 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 velocity = dir * speed;
         rg.MovePosition(rg.position + velocity * Time.deltaTime);
-        
-        if(velocity.magnitude >= 0.1f){
-            animator.SetFloat("Horizontal", dir.x);
-            animator.SetFloat("Vertical", dir.y);
+        SetPointDir(dir);
+        if (velocity.magnitude >= 0.1f){
+            //animator.SetFloat("Horizontal", dir.x);
+            //animator.SetFloat("Vertical", dir.y);
             isMoving = true;
 
             StopInteraction();        
@@ -204,6 +242,7 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, interactionRadius);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(transform.position + (Vector3)pointDir, new Vector3(1,1,1));
     }
-
 }
